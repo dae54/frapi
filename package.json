@@ -1,0 +1,45 @@
+{
+  "name": "imprest-system",
+  "version": "1.0.0",
+  "description": "Imprest System (Fund Request App) is an internal iPF App which is designed to enhance efficiency in internal iPF fund requesting process while also ensures the funds disbursed are within the budget allocated and remove manual processing of requests",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive",
+    "start":"nodemon ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iPFSoftwares/imprest-system.git"
+  },
+  "author": "Daniel Ernest",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iPFSoftwares/imprest-system/issues"
+  },
+  "homepage": "https://github.com/iPFSoftwares/imprest-system#readme",
+  "dependencies": {
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "i": "^0.3.6",
+    "jsonwebtoken": "^8.5.1",
+    "mocha": "^6.2.0",
+    "moment": "^2.24.0",
+    "mongodb-topology-manager": "^2.1.0",
+    "mongoose": "^5.7.1",
+    "multer": "^1.4.2",
+    "node-gyp": "^6.1.0",
+    "nodemailer": "^6.3.1",
+    "npm": "^6.14.7",
+    "socket.io": "^2.3.0",
+    "uuid": "^7.0.2",
+    "web-push": "^3.4.3"
+  },
+  "devDependencies": {
+    "supertest": "^4.0.2",
+    "nodemon": "^2.0.4"
+  }
+}

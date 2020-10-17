@@ -1,0 +1,6 @@
+node_modules
+.env
+services/imprestdev.code-workspace
+services/resetPasswordEmail/images/bg_top.jpg
+services/resetPasswordEmail/images/IPF LOGO ipf (1).png
+public
