@@ -46,6 +46,12 @@ router.post('/', requestController.createNewRequest)
  * @param value, expected: [SINGLE NAMED VALUE CARRYING THE VALUE OF @param identifier ]
  * @returns 
  */
+
+// REMARK ROUTES
+router.get('/remarks', requestController.fetchRemarks)
+router.put('/remarks', requestController.addRemarks)
+router.delete('/:requestId/remark/:remarkId', requestController.deleteRemark)
+
 router.get('/', requestController.viewRequests)
 
 router.get('/:id', requestController.viewRequestById)
@@ -53,13 +59,10 @@ router.get('/user/:id', requestController.viewRequestByUserId)
 
 router.get('/budget/:id', requestController.viewRequestByBudgetId)
 
-router.delete('/', requestController.deleteRequest)
+router.delete('/:id', requestController.deleteRequest)
 
 router.get('/stats', requestController.requestStatistics)
 
-router.put('/remark', requestController.addRemarks)
-router.get('/remark', requestController.fetchRemarks)
-router.delete('/:requestId/remark/:remarkId', requestController.deleteRemark)
 
 router.get('/requestStatusAmount', requestController.requestStatusAmount)
 router.get('/history', requestController.requestHistory)

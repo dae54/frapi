@@ -345,7 +345,7 @@ module.exports = {
     deleteRequest: async (req, res) => {
         try {
             console.log('delete')
-            await Request.deleteOne({ _id: req.query.requestId })
+            await Request.deleteOne({ _id: req.params.id })
             res.status(200).json({
                 message: 'deleted',
                 status: true
@@ -410,11 +410,8 @@ module.exports = {
     changeRequestStatus: async (req, res) => {
         try {
             const { requestId, status } = req.params
-            // console.log(requestId)
             console.log('changeRequestStatus')
             const { userId, remarks } = req.body
-            console.log(req.params)
-
             const request = await Request.findOne({ _id: requestId });
             /**updated status
              * 0 pending
@@ -476,7 +473,7 @@ module.exports = {
                 status: true,
                 message: `status successfully changed to ${status}`,
                 // data: { status: updatedRequest.status, remarks: updatedRequest.remarks.pop() }
-                data: { request: updatedRequestFinal }
+                data: updatedRequestFinal
             })
 
         } catch (e) {
