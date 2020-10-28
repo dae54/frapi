@@ -359,6 +359,7 @@ module.exports = {
     },
     aproveRequest: async (req, res) => {
         try {
+            console.log('aprove request')
             //TODO: to limit that no user can aprove more than once per request
             const { userId } = req.body
             const requestID = req.params.requestID
@@ -381,7 +382,10 @@ module.exports = {
             } else if (aprovedRequestsCount === fundAproversCount.value - 1) {
                 const aprovedRequest = await Request.findOneAndUpdate({ _id: requestID }, { $set: { status: 2, statusChangedBy: userId } }, { new: true, useFindAndModify: false })
                     .populate('budgetItemId', 'name code')
-                const asd = await RequestAproves.deleteMany({ requestId: requestID })
+                // const asd = await RequestAproves.deleteMany({ requestId: requestID })
+                await RequestAproves({ userId, requestId: requestID }).save()
+                // await requestAproves.save()
+                const asd = await RequestAproves.updateMany({ requestId: requestID }, { status: 1 })
                 console.log(asd)
 
                 console.log(aprovedRequest)
@@ -406,6 +410,65 @@ module.exports = {
                 developerMessage: e.message
             })
         }
+    },
+
+    getRequestAproves: async (req, res) => {
+
+        console.log('get request aproves')
+        const requestID = req.params.requestID
+        console.log(req.params)
+        // if(req.params.requestID )
+        console.log(typeof req.params.requestID)
+        try {
+            if (req.params.requestID !== undefined) {
+                const requestAproves = await RequestAproves.find({ requestId: requestID })
+
+                return res.status(200).json({
+                    status: true,
+                    message: 'done fetching request aproves',
+                    data: {}
+                })
+            } else {
+                console.log('hah')
+                const requestAproves = await RequestAproves.find()
+                    .select('-updatedAt -__v')
+                    // .populate('userId', 'firstName lastName roleId')
+                    .populate({
+                        path: 'userId',
+                        select: 'firstName lastName roleId ',
+                        populate: { path: 'roleId', select: 'name -_id' }
+                    })
+                    .populate({
+                        path: 'requestId',
+                        select: 'budgetItemId userId createdAt status budgetId',
+                        populate: [
+                            { path: 'budgetItemId', select: 'code name' },
+                            { path: 'userId', select: 'firstName lastName' },
+                            { path: 'budgetId', select: 'name' },
+                        ],
+                        // populate: { path: 'userId', select: 'firstName lastName' },
+                    })
+                // .populate({ path: 'requestId', populate: { path: 'budgetItemId userId' }})
+
+                // populate: { path: 'userId amount status budgetItemId' } })
+                // .populate('userId', 'firstName lastName')
+                // .populate('requestId', 'userId amount status budgetItemId')
+
+                console.log(requestAproves)
+                return res.status(200).json({
+                    status: true,
+                    message: 'done fetching request aproves',
+                    data: requestAproves
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                userMessage: 'Whoops something went wrong',
+                developerMessage: e.message
+            })
+        }
+
     },
     changeRequestStatus: async (req, res) => {
         try {

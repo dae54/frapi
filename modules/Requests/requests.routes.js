@@ -52,10 +52,6 @@ router.get('/remarks', requestController.fetchRemarks)
 router.put('/remarks', requestController.addRemarks)
 router.delete('/:requestId/remark/:remarkId', requestController.deleteRemark)
 
-router.get('/', requestController.viewRequests)
-
-router.get('/:id', requestController.viewRequestById)
-router.get('/user/:id', requestController.viewRequestByUserId)
 
 router.get('/budget/:id', requestController.viewRequestByBudgetId)
 
@@ -73,7 +69,14 @@ router.get('/attach/:requestID', requestController.getAttachments)
 // router.post('/aprove', requestController.aproveRequest)//patch
 // router.post('/changeStatus',requestController.changeRequestStatus)
 // router.post('/confirm',requestController.confirmRequest)
+router.get('/aprove/:requestID?', requestController.getRequestAproves)
 router.patch('/aprove/:requestID', requestController.aproveRequest)
 router.patch('/:requestId/changeStatus/:status', requestController.changeRequestStatus)
+
+
+router.get('/', requestController.viewRequests)
+
+router.get('/:id', requestController.viewRequestById)
+router.get('/user/:id', requestController.viewRequestByUserId)
 
 module.exports = router
