@@ -19,7 +19,7 @@ module.exports = {
             })
             const newRequest = await request.save()
             const fundAproverRole = await Roles.find({ name: 'Fund Aprover' }).select('_id')
-            const fundAprovers = await User.find({ roleId: fundAproverRole }).select('_id')
+            const fundAprovers = await User.find({ role: fundAproverRole }).select('_id')
             // rename _id to recepientID
             var recepients = fundAprovers.map(fundAprover => {
                 return { recepientID: fundAprover._id }

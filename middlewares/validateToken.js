@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 
 module.exports = function validateToken(req, res, next) {
     if (typeof req.headers.authorization === 'undefined') {
+        console.log('401')
         return res.status(401).json({
             status: false,
             userMessage: 'please login to proceed',
@@ -18,6 +19,7 @@ module.exports = function validateToken(req, res, next) {
             })
         }
         req.body.userId = decoded.id
+        // req.body.roleId = decoded.roleId
         next()
     })
 }

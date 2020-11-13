@@ -49,7 +49,8 @@ let userSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        select: false
     },
     firstTimeLoginStatus: {
         type: Number,
@@ -60,7 +61,7 @@ let userSchema = mongoose.Schema({
      *for first login, before user changes password, firstTimeLoginStats is set to 0
      *after resetting password, the firstTimeLoginStats is set to 1 
      */
-    roleId: {
+    role: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'role'
@@ -68,6 +69,10 @@ let userSchema = mongoose.Schema({
     forgotPasswordID: {
         type: String,
         trim: true,
+    },
+    invitationEmail: {
+        type: Boolean,
+        default: false
     }
 },
     { timestamps: true }

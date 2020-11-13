@@ -383,12 +383,16 @@ module.exports = {
             // console.log(budgetId)
             const budget = await Budget.findById(budgetId)
                 .populate('budgetItems.budgetItemId', 'name code')
+                .populate('createdBy','firstName lastName')
+                .select('-description -activatedBy')
             // console.log(budget.budgetItems)
-
-            const requests = await Request.find({ status: 4, budgetId: budgetId })
+            const requests = await Request.find({ budgetId: budgetId })
+                .where('status').in([4, 5])
                 .select('amount budgetItemId')
 
-            var result = []
+            console.log(requests)
+
+            var reportStatus = []
 
             budget.budgetItems.forEach(item => {
                 var disbursed = 0;
@@ -398,22 +402,25 @@ module.exports = {
                     // console.log(item.budgetItemId._id.toString() == request.budgetItemId.toString())
                     if (item.budgetItemId._id.toString() == request.budgetItemId.toString()) {
                         console.log('am in')
-                        disbursed += request.amount
-                        let temp = {
-                            'budgetItem': item.budgetItemId,
-                            'initialAmount': item.amount,
-                            'disbursedAmount': disbursed,
-                        }
-                        result.push(temp)
-                    } else {
-                        let temp = {
-                            'budgetItem': item.budgetItemId,
-                            'initialAmount': item.amount,
-                            'disbursedAmount': 0,
-                        }
-                        result.push(temp)
+                        disbursed += Number(request.amount)
                     }
+                    //  else {
+                    //     console.log('else')
+                    // let temp = {
+                    //     'budgetItem': item.budgetItemId,
+                    //     'initialAmount': item.amount,
+                    //     'disbursedAmount': 0,
+                    // }
+                    // result.push(temp)
+                    // }
+
                 })
+                let temp = {
+                    'budgetItem': item.budgetItemId,
+                    'initialAmount': item.amount,
+                    'disbursedAmount': disbursed,
+                }
+                reportStatus.push(temp)
                 // console.log(item.budgetItemId)
             })
 
@@ -430,7 +437,7 @@ module.exports = {
 
 
             console.log('*************RESULT*************')
-            console.log(result)
+            console.log(reportStatus)
             console.log('*************RESULT*************')
 
             // var labels = [];
@@ -442,7 +449,7 @@ module.exports = {
             return res.status(200).json({
                 message: 'done',
                 status: true,
-                data: budget
+                data: { budget, reportStatus }
             })
         } catch (e) {
             console.log(e)

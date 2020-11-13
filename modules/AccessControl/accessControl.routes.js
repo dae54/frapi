@@ -9,12 +9,15 @@ routes.post('/roles', accessController.createRole);
 //create user roles
 routes.patch('/roles/:id', checkPermission('access-control', 'write-role'), accessController.updateRole);
 //fetch user roles
-routes.get('/roles', accessController.getRoles);
+routes.get('/roles/:id?', accessController.getRoles);
 //post permission
 //routes.post('/permission', accessController.createPermission);
 //post permission
 // routes.get('/permissions',authJwt, accessController.getPermission);
 routes.get('/permissions', accessController.getPermission);
+routes.get('/permissions/:role', accessController.getRolesPermission);
+routes.patch('/permissions/:role', accessController.updateRolesPermission);
+routes.post('/permissions', accessController.updatePermission);
 //give role permission
 routes.patch('/grantPermission', checkPermission('access-control', 'write-role'), accessController.rolePermission);
 //get staffs based on role id

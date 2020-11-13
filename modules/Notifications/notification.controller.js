@@ -8,12 +8,12 @@ module.exports = {
         const io = socketIO(server)
         io.on('connection', (socket) => {
             getNotificationAndEmit(socket, socket.client.request._query.userID)
-            // console.log('socket connected by ', socket.client.request._query.userID)
+            console.log('socket connected by ', socket.client.request._query.userID)
             EventEmitter.on('save', () => {
                 return getNotificationAndEmit(socket, socket.client.request._query.userID)
             })
             socket.on('disconnect', () => {
-                // console.log('client disconnected')
+                console.log('client disconnected')
                 // io.close()
             })
         })
@@ -21,7 +21,7 @@ module.exports = {
         io.of('/notificationCount')
             .on('connection', socket => {
                 getNotificationCountAndEmit(socket, socket.client.request._query.userID)
-                // console.log('socket connected by ', socket.client.request._query.userID)
+                console.log('socket connected by ', socket.client.request._query.userID)
                 EventEmitter.on('save', () => {
                     return getNotificationCountAndEmit(socket, socket.client.request._query.userID)
                 })

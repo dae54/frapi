@@ -4,11 +4,19 @@ const jwt = require('jsonwebtoken')
 let User = require('./user.model')
 const sendEmail = require('../../services/invitationEmail/invitaionEmail')
 const sendResetPasswordEmail = require('../../services/resetPasswordEmail/resetPasswordEmail')
+const Role = require('../AccessControl/roles.model')
 
 module.exports = {
     login: async (req, res) => {
         try {
-            let user = await User.findOne({ email: req.body.email });
+            let user = await User.findOne({ email: req.body.email }, '+password')
+                // .populate('role')
+                .populate({
+                    path: 'role',
+                    populate: [
+                        { path: 'permission', select: 'genericName moduleName' },
+                    ],
+                })
             if (!user) {
                 return res.status(401).json({
                     target: 'email',
@@ -27,7 +35,7 @@ module.exports = {
                 }
                 else {
                     const displayName = user.firstName + ' ' + user.lastName
-                    let token = jwt.sign({ id: user._id, email: user.email, displayName: displayName }, process.env.JWT_SECRET, { expiresIn: 86400 });
+                    let token = jwt.sign({ id: user._id, email: user.email, displayName: displayName, roleId: user.role._id }, process.env.JWT_SECRET, { expiresIn: 86400 });
                     let rawResponse = user.toObject()
                     delete rawResponse.password
                     return res.status(200).json({
@@ -40,6 +48,7 @@ module.exports = {
                 }
             }
         } catch (e) {
+            console.log(e)
             return res.status(500).json({
                 userMessage: 'Whoops! Something went wrong.',
                 developerMessage: e.message
@@ -48,7 +57,7 @@ module.exports = {
     },
     register: async (req, res) => {
         try {
-            const { firstName, lastName, email, phoneNumber, country, region, district, ward, gender, roleId } = req.body.newUser
+            const { firstName, lastName, email, phoneNumber, country, region, district, ward, gender, role } = req.body.newUser
             const emailCount = await User.find({ email: email }).countDocuments();
             if (emailCount != 0) {
                 return res.status(400).json({
@@ -57,7 +66,7 @@ module.exports = {
                 })
             }
             var user = new User({
-                firstName, lastName, email, phoneNumber, country, region, district, ward, gender, roleId
+                firstName, lastName, email, phoneNumber, country, region, district, ward, gender, role
             })
             const password = lastName.toUpperCase()
             var hash = bcrypt.hashSync(password, 8);
@@ -79,9 +88,10 @@ module.exports = {
                 })
             }
         } catch (e) {
+            console.log(e)
             return res.status(500).json({
                 status: false,
-                userMessage: 'Whoops! Something went wrong.',
+                userMessage: e.message,
                 developerMessage: e.message
             })
         }
@@ -151,7 +161,32 @@ module.exports = {
         try {
             console.log('viewUser')
             const user = await User.find().populate('roleId', 'name')
-                .select('firstName lastName phoneNumber roleId')
+                .select('firstName lastName phoneNumber role')
+                .populate('role','name')
+            return res.status(200).json({
+                message: 'done',
+                status: true,
+                data: user
+            })
+        } catch (e) {
+            return res.status(500).json({
+                userMessage: 'Whoops! Something went wrong.',
+                developerMessage: e.message
+            })
+        }
+    },
+    viewLoggedInUser: async (req, res) => {
+        try {
+            console.log('viewUser')
+            const user = await User.findById(req.body.userId)
+                .populate({
+                    path: 'role',
+                    populate: [
+                        { path: 'permission', select: 'genericName moduleName' },
+                    ],
+                })
+            // .populate('roleId', 'name')
+            // .select('firstName lastName phoneNumber roleId')
             return res.status(200).json({
                 message: 'done',
                 status: true,
@@ -166,19 +201,26 @@ module.exports = {
     },
     viewUserById: async (req, res) => {
         try {
-            console.log('viewUserById')
-            console.log(req.params.id)
-            const user = await User.findById(req.params.id).select('-password').populate('roleId', 'name')
-            console.log(user)
-            const userOBJ = user.toObject()
-            userOBJ.roleName = user.roleId.name
-            userOBJ.roleId = user.roleId._id
-            console.log(userOBJ)
+            // console.log('viewUserById')
+            // console.log(req.params.id)
+            const user = await User.findById(req.params.id)
+                .populate({
+                    path: 'role',
+                    populate: [
+                        { path: 'permission', select: 'genericName moduleName' },
+                    ],
+                })
+
+            // console.log(user)
+            // const userOBJ = user.toObject()
+            // userOBJ.roleName = user.roleId.name
+            // userOBJ.roleId = user.roleId._id
+            // console.log(userOBJ)
 
             return res.status(200).json({
                 message: 'done',
                 status: true,
-                data: userOBJ
+                data: user
             })
         } catch (e) {
             return res.status(500).json({

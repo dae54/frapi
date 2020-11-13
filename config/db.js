@@ -21,7 +21,7 @@ const { exec } = require("child_process");
 // }
 
 
-mongoose.connect(process.env.MONGO_DB_HOST_LOCAL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
+mongoose.connect(process.env.MONGO_DB_HOST_REMOTE, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
 
 module.exports = () => {
 

@@ -11,6 +11,7 @@ const Role = require('./roles.model')
 const Permission = require('./permissions.model')
 const RolePermission = require('./role_permission.model')
 const User = require('../users/user.model')
+const mongoose = require('mongoose')
 
 module.exports = {
     createRole: async (req, res) => {
@@ -61,28 +62,34 @@ module.exports = {
     },
     getRoles: async (req, res) => {
         try {
-            const roles = await Role.aggregate([{
-                $match: {
-                    "name": { $ne: "Root" },
+            var roles;
+            if (typeof req.params.id === 'undefined') {
+                roles = await Role.aggregate([{
+                    $match: {
+                        "name": { $ne: "Root" },
+                    },
                 },
-            },
-            {
-                $lookup: {
-                    from: "rolepermissions",
-                    localField: "_id",
-                    foreignField: "role",
-                    as: "rolePermissions"
+                {
+                    $lookup: {
+                        from: "rolepermissions",
+                        localField: "_id",
+                        foreignField: "role",
+                        as: "rolePermissions"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "permissions",
+                        localField: "rolePermissions.permission",
+                        foreignField: "_id",
+                        as: "rolePermissions.permissions",
+                    }
                 }
-            },
-            {
-                $lookup: {
-                    from: "permissions",
-                    localField: "rolePermissions.permission",
-                    foreignField: "_id",
-                    as: "rolePermissions.permissions",
-                }
+                ]);
+            } else {
+                console.log('get roles by roleid')
+                roles = (await Role.findById(req.params.id, 'permission')).permission
             }
-            ]);
             return res.status(201).json({
                 data: roles,
                 message: 'role list'
@@ -94,12 +101,84 @@ module.exports = {
             });
         }
     },
+    updatePermission: async (req, res) => {
+        try {
+            const permission = await Permission.create(req.body.data)
+            return res.status(201).json({
+                data: permission,
+                message: 'Permission created!!'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                developerMessage: e.message
+            });
+        }
+    },
     getPermission: async (req, res) => {
         try {
+
             const permissions = await Permission.find({});
+
             return res.status(201).json({
                 data: permissions,
                 message: 'permission list'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                developerMessage: e.message
+            });
+        }
+    },
+    getRolesPermission: async (req, res) => {
+        try {
+            console.log('get roles permission')
+            console.log(req.params)
+
+            // const permissions = await Permission.find({});
+            const rolePermissions = await Role.findOne({ role: req.params.role }, '_id')
+            // .populate('modules.module', 'moduleName permissions')
+            // .populate('modules.permissions.permissionId')
+            // .populate('permissions.permissions.permissionId')
+            console.log(rolePermissions)
+
+            return res.status(201).json({
+                data: rolePermissions,
+                message: 'permission list'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                developerMessage: e.message
+            });
+        }
+    },
+    updateRolesPermission: async (req, res) => {
+        try {
+            console.log(req.body)
+            console.log(req.params)
+            // console.log(req.body)
+            // const { module, permission } = req.body
+            // const role = req.params.role
+
+            // console.log(module)
+            // console.log(permission)
+            // console.log(role)
+            const updatedRole = await Role.findByIdAndUpdate(req.params.role, { $set: { permission: req.body.permissions } }, { new: true, useFindAndModify: false },)
+            // console.log(req.params.role)
+            // const updatedRole = await Role.findByIdAndUpdate({ role: req.params.role })
+            console.log(updatedRole)
+            // data.modules.forEach(async module => {
+            //     console.log(module)
+            // })
+
+            // console.log(req.query)
+
+            console.log('update roles permission')
+            return res.status(201).json({
+                data: updatedRole.permission,
+                message: 'role updated successfully'
             })
         } catch (e) {
             console.log(e)
