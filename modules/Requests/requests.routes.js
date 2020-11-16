@@ -71,6 +71,7 @@ router.get('/attach/:requestID', requestController.getAttachments)
 // router.post('/confirm',requestController.confirmRequest)
 router.get('/aprove/:requestID?', requestController.getRequestAproves)
 router.patch('/aprove/:requestID', requestController.aproveRequest)
+router.patch('/revertAprove/:requestID', requestController.revertAprove)
 router.patch('/:requestId/changeStatus/:status', requestController.changeRequestStatus)
 
 
