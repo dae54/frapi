@@ -381,7 +381,19 @@ module.exports = {
                 })
             } else if (aprovedRequestsCount === fundAproversCount.value - 1) {
                 const aprovedRequest = await Request.findOneAndUpdate({ _id: requestID }, { $set: { status: 2, statusChangedBy: userId } }, { new: true, useFindAndModify: false })
-                    .populate('budgetItemId', 'name code')
+
+                // const aprovedRequest = await Request.findOneAndUpdate(
+                //     { _id: requestID },
+                //     {
+                //         $set: { status: 2 },
+                //         $push: {
+                //             statusChangedBy: {
+                //                 user: userId, fromStatus: 0, toStatus: 2, reason: 'Aproving Request'
+                //             }
+                //         }
+                //     },
+                //     { new: true, useFindAndModify: false })
+                //     .populate('budgetItemId', 'name code')
                 // const asd = await RequestAproves.deleteMany({ requestId: requestID })
                 await RequestAproves({ userId, requestId: requestID }).save()
                 // await requestAproves.save()
@@ -411,7 +423,58 @@ module.exports = {
             })
         }
     },
+    revertAprove: async (req, res) => {
+        try {
+            const requestID = req.params.requestID
+            const { userId, remarks } = req.body
 
+            const del = await RequestAproves.deleteMany({ requestId: requestID })
+
+            // const request = await Request.findOne({ _id: requestID })
+            // request.status = 0
+            // request.statusChangedBy = userId
+            // request.remarks.push({ title: 'Revert Request', message: remarks, author: userId })
+            // request.save()
+
+            // const updatedRequestFinal = await Request.findOne({ _id: requestID })
+            //     .populate('userId', 'firstName lastName')
+            //     .populate('budgetItemId', 'name code')
+            //     .populate('budgetId', 'name')
+
+
+            const request = await Request.findOneAndUpdate(
+                { _id: requestID },
+                {
+                    $set: {
+                        status: 0,
+                        statusChangedBy: userId
+                    },
+                    $push: {
+                        remarks: {
+                            title: 'Revert Request', message: remarks, author: userId
+                        }
+                    }
+                }, { new: true, useFindAndModify: false })
+                .populate('userId', 'firstName lastName')
+                .populate('budgetItemId', 'name code')
+                .populate('budgetId', 'name')
+
+            return res.status(200).json({
+                status: true,
+                message: 'Request Reverted Successfully',
+                data: request
+            })
+            // request.statusChangedBy = userId
+            // request.remarks.push({ title: '', message: remarks, author: userId })
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                userMessage: 'Whoops something went wrong',
+                developerMessage: e.message
+            })
+        }
+    },
     getRequestAproves: async (req, res) => {
 
         console.log('get request aproves')
