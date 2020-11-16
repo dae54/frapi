@@ -195,21 +195,21 @@ module.exports = {
             },
             {
                 name: 'Accountant',
-                description: 'Role for an Admin',
+                description: 'Role for an Accountant',
                 type: 1,
                 approvalStatus: 1,
                 permission: []
             },
             {
                 name: 'Fund Aprover',
-                description: 'Role for an Admin',
+                description: 'Role for a Fund Aprover',
                 type: 1,
                 approvalStatus: 1,
                 permission: []
             },
             {
                 name: 'Fund Requester',
-                description: 'Role for an Admin',
+                description: 'Role for a Fund Requester',
                 type: 1,
                 approvalStatus: 1,
                 permission: []
