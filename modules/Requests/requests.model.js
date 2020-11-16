@@ -25,6 +25,24 @@ let remark = mongoose.Schema({
 }, { timestamps: true }
 )
 
+let statusChange = mongoose.Schema({
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'users',
+    },
+    fromStatus: {
+        type: Number,
+        enum: [0, 1, 2, 3, 4, 5, 6],
+    },
+    toStatus: {
+        type: Number,
+        enum: [0, 1, 2, 3, 4, 5, 6],
+    },reason:{
+        type: String
+    }
+}, { timestamps: true }
+)
+
 let requests_schema = Schema({
     budgetItemId: {
         type: Schema.Types.ObjectId,
@@ -70,6 +88,7 @@ let requests_schema = Schema({
         type: Number,
         required: true
     },
+    // statusChangedBy: [statusChange],
     remarks: [remark],
     attachments: [attachment]
 },
