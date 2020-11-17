@@ -43,16 +43,15 @@ async function fetchRequestsOnHold() {
 }
 
 async function fetchMostRequestedBudgetItem() {
-    var sum = 0
+    // var sum = 0
     // const mostRequestedBudgetItem = await Request.find()
     const mostRequestedBudgetItem = await Request.aggregate([
         { $group: { _id: "$budgetItemId", count: { $sum: 1 } } },
         { $sort: { count: -1 } },
     ]
     );
-    // console.log(mostRequestedBudgetItem[0])
+    if (mostRequestedBudgetItem.length === 0) return { count: '', mostRequestedBudgetItem: 'No data' }
     const budgetItem = await BudgetItems.findById(mostRequestedBudgetItem[0]._id).select('name')
-    // console.log(budgetItem)
-    const final = { mostRequestedBudgetItem: budgetItem.name, count: mostRequestedBudgetItem[0].count }
-    return final
+    // const final = { mostRequestedBudgetItem: budgetItem.name, count: mostRequestedBudgetItem[0].count }
+    return { mostRequestedBudgetItem: budgetItem.name, count: mostRequestedBudgetItem[0].count }
 }
