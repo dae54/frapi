@@ -70,14 +70,24 @@ let userSchema = mongoose.Schema({
         type: String,
         trim: true,
     },
-    invitationEmail: {
+    invited: {
         type: Boolean,
-        default: false
+        default: false,
+        required: true
+    },
+    aproved: {
+        type: Number,
+        enum: [0, 1],
+        default: 0,
+        required: true
+        //0 NOT APROVED
+        //1 ACTIVE
+    },verifiedAt:{
+        type:Date
     }
 },
     { timestamps: true }
 )
-
 // userSchema.virtual('fullName').get(function () {
 //     console.log('names', this.firstName)
 //     return firstName + ' ' + lastName;
