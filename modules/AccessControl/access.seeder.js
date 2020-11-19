@@ -49,6 +49,8 @@ module.exports = {
                 phoneNumber: '255713000000',
                 password: bcrypt.hashSync('root@fundrequest', 8),
                 staffApprovalStatus: 1,
+                invited: true,
+                aproved: 1,
                 verifiedAt: Date.now(),
                 gender: 'male',
                 role: (await Role.findOne({ name: 'Administrator' }).select('_id'))._id
