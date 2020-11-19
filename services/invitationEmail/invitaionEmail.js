@@ -7,10 +7,11 @@ module.exports = async function sendEmail(firstName, lastName, email) {
         let transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.EMAIL_FROM,//SENDER EMAIL
+                user: process.env.CONTROL_EMAIL,//SENDER EMAIL
                 pass: process.env.EMAIL_PASSWORD//SENDER PASSWORD
             }
         });
+        console.log(transporter)
 
         const response = await transporter.sendMail({
             from: '"Fund Request (ipfsoftwares)👻" <danielernest1.05@gmail.com>', // sender address
@@ -18,7 +19,7 @@ module.exports = async function sendEmail(firstName, lastName, email) {
             subject: 'Test Invitation ✔', // Subject
             html: emailBody(name, email, password) // html body
         });
-        return { status: true, message: 'sent successful' }
+        return { status: true, message: 'Email sent. ' }
     } catch (error) {
         return { status: false, message: error.message }
     }

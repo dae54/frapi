@@ -96,6 +96,25 @@ module.exports = {
             })
         }
     },
+    sendInvitationEmail: async (req, res) => {
+        try {
+            console.log('sendInvitationEmail')
+            const { firstName, lastName, email } = req.body
+            console.log(req.body)
+            const response = await sendEmail(firstName, lastName, email)
+            return res.status(200).json({
+                message: 'Message sent',
+                data: response,
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                status: false,
+                userMessage: e.message,
+                developerMessage: e
+            })
+        }
+    },
     editUser: async (req, res) => {
         try {
             console.log('edit user')
@@ -106,6 +125,21 @@ module.exports = {
             return res.status(200).json({
                 message: `user updated successfully`,
                 data: rawResponse
+            })
+        } catch (e) {
+            return res.status(500).json({
+                status: false,
+                userMessage: 'Whoops! Something went wrong.',
+                developerMessage: e.message
+            })
+        }
+    },
+    toggleAprovalStatus: async (req, res) => {
+        try {
+            const updatedUser = await User.findByIdAndUpdate(req.params.userId, { $set: { aproved: req.params.status } }, { new: true, useFindAndModify: false })
+            return res.status(200).json({
+                message: `Status Updated Successfully`,
+                data: updatedUser.aproved
             })
         } catch (e) {
             return res.status(500).json({
@@ -146,7 +180,7 @@ module.exports = {
             }
             const deletedUser = await User.findOneAndDelete(req.params)
             return res.status(200).json({
-                message: 'deleted',
+                message: 'User is successfully deleted',
                 status: true,
                 data: deletedUser
             })
@@ -161,8 +195,8 @@ module.exports = {
         try {
             console.log('viewUser')
             const user = await User.find().populate('roleId', 'name')
-                .select('firstName lastName phoneNumber role')
-                .populate('role','name')
+                .select('firstName lastName phoneNumber role invited')
+                .populate('role', 'name')
             return res.status(200).json({
                 message: 'done',
                 status: true,
