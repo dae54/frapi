@@ -1,6 +1,7 @@
 let BudgetItem = require('./budgetItems.model')
 let Request = require('../Requests/requests.model')
 let Budget = require('../Budgets/budget.model')
+const budgetItemsModel = require('./budgetItems.model')
 let budgetItemDisbursed = require('../../services/fetchBudgetItemAmountDisbursed').fetchBudgeItemAmountDisbursed
 const BudgetItemAmountDetails = require('../../services/BudgetItemAmountDetails').BudgetItemAmountDetails
 
@@ -8,28 +9,68 @@ module.exports = {
     createBudgetItems: async (req, res) => {
         try {
             // console.log(req.body)
-            var budgetItem;
-            const { name, code, description } = req.body
-            const itemCount = await BudgetItem.find({ code }).countDocuments();
-            // console.log(itemCount)
-            if (itemCount > 0) {
-                // console.log('here')
+            // var newBudgetItems = [];
+            const { budgetItems } = req.body
+            // console.log(budgetItems)
+
+            // const { name, code, description } = req.body
+            // const itemCount = await BudgetItem.find({ code }).countDocuments();
+            // // console.log(itemCount)
+            // if (itemCount > 0) {
+            //     // console.log('here')
+            //     return res.status(400).json({
+            //         userMessage: `Budget Item with code "${code}" already exists`,
+            //         developerMessage: `duplicate entry ${code} in budgetItemCode`
+            //     })
+            // }
+
+            // budgetItems.forEach(async item => {
+            //     console.log(item)
+            //     // const itemCount = await BudgetItem.find({ code }).countDocuments();
+
+            //     var newItem = new BudgetItem(item)
+            //     // console.log(newItem)
+            //     await newItem.save()
+            //     console.log(newItem)
+
+            //     newBudgetItems.push(newItem)
+            //     // name:item.name, codcode, description
+            //     // })
+            // })
+
+            // const newBudgetItems = await budgetItems.map(async item => {
+            //     // var newItem = new BudgetItem(item)
+            //     var it = await BudgetItem.create(item)
+            //     console.log(it)
+            //     return it
+            // })
+            var itemsNotCreated = [];
+
+            let newBudgetItems = await Promise.all(
+                budgetItems.map(async item => {
+                    const itemCount = await BudgetItem.find({ code: item.code }).countDocuments();
+                    if (itemCount !== 0) {
+                        itemsNotCreated.push(item)
+                    }
+                    return await BudgetItem.create(item)
+                })
+            );
+
+            // console.log(newBudgetItems)
+            if (itemsNotCreated.length !== 0) {
                 return res.status(400).json({
-                    userMessage: `Budget Item with code "${code}" already exists`,
-                    developerMessage: `duplicate entry ${code} in budgetItemCode`
+                    status: true,
+                    message: `Some budget item not created`,
+                    data: itemsNotCreated,
                 })
             }
-            budgetItem = new BudgetItem({
-                name, code, description
-            })
-            const newBudgetItem = await budgetItem.save()
-
             res.status(200).json({
                 status: true,
-                message: `Budget item with code ${code} is successfully created`,
-                data: newBudgetItem
+                message: `Budget item is successfully created`,
+                data: newBudgetItems
             })
         } catch (e) {
+            console.log(e)
             return res.status(500).json({
                 userMessage: 'Whoops! Something went wrong.',
                 developerMessage: e.message
