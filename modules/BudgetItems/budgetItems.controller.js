@@ -57,20 +57,47 @@ module.exports = {
             );
 
             // console.log(newBudgetItems)
-            if (itemsNotCreated.length !== 0) {
-                return res.status(400).json({
-                    status: true,
-                    message: `Some budget item not created`,
-                    data: itemsNotCreated,
-                })
-            }
+            // if (itemsNotCreated.length !== 0) {
+            //     return res.status(400).json({
+            //         status: true,
+            //         message: `Some budget item not created`,
+            //         data: itemsNotCreated,
+            //     })
+            // }
             res.status(200).json({
                 status: true,
                 message: `Budget item is successfully created`,
-                data: newBudgetItems
+                // data: newBudgetItems,
+                data: { createdItems: newBudgetItems, itemsNotCreated: itemsNotCreated }
             })
         } catch (e) {
             console.log(e)
+            return res.status(500).json({
+                userMessage: 'Whoops! Something went wrong.',
+                developerMessage: e.message
+            })
+        }
+    },
+    editBudgetItems: async (req, res) => {
+        try {
+            console.log(req.params.budgetItemId)
+            // console.log(req.body.data.parameter)
+            // console.log(req.body.data.value)
+            const { parameter, value } = req.body.data
+            console.log(parameter)
+            console.log(value)
+
+            let budgetItem = await BudgetItem.findOneAndUpdate(
+                { _id: req.params.budgetItemId },
+                { $set: { [parameter]: value } },
+                { useFindAndModify: false, new: true }
+            );
+
+            return res.status(200).json({
+                message: 'Changes are saved',
+                data: budgetItem
+            })
+        } catch (e) {
             return res.status(500).json({
                 userMessage: 'Whoops! Something went wrong.',
                 developerMessage: e.message
@@ -83,7 +110,8 @@ module.exports = {
             if (req.params.length != undefined) {
                 budgetItem = await BudgetItem.find({ _id: req.params.budgetItemId });
             } else {
-                budgetItem = await BudgetItem.find().select('name code');
+                budgetItem = await BudgetItem.find()
+                // .select('name code description');
             }
             return res.status(200).json({
                 message: 'success',
@@ -99,19 +127,23 @@ module.exports = {
     deleteBudgetItem: async (req, res) => {
         try {
             console.log('delete budget item')
-            BudgetItem.deleteOne({ code: req.body.code }, function (err) {
-                if (err) return res.status(400).json({
-                    userMessage: 'Failed to delete Entry',
-                    developerMessage: e.message
-                })
-            });
+            const deletedItem = await BudgetItem.findOneAndDelete({ _id: req.params.budgetItemId })
+
+            //     , function (err) {
+            //     if (err) return res.status(400).json({
+            //         userMessage: 'Failed to delete Entry',
+            //         developerMessage: e.message
+            //     })
+            // });
+            console.log(deletedItem)
             res.status(200).json({
                 message: 'deleted',
-                status: true
+                status: true,
+                data: deletedItem._id
             })
         } catch (e) {
             return res.status(500).json({
-                userMessage: 'Whoops! Something went wrong.',
+                message: 'Whoops! Something went wrong.',
                 developerMessage: e.message
             })
         }
