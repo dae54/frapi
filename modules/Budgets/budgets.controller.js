@@ -152,6 +152,27 @@ module.exports = {
     //         })
     //     }
     // },
+    viewBudgetById: async (req, res) => {
+        try {
+            console.log('view budget By Id')
+            const budget = await Budget.findById(req.params.budgetId)
+                .populate('budgetItems.budgetItemId')
+                .populate('createdBy', 'firstName lastName')
+                .populate('activatedBy', 'firstName lastName createdAt')
+
+            res.status(200).json({
+                message: 'success',
+                status: true,
+                data: budget
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                userMessage: 'Whoops! Something went wrong.',
+                developerMessage: e.message
+            })
+        }
+    },
     viewBudgetByStatus: async (req, res) => {
         try {
             // console.log(req)
@@ -383,7 +404,7 @@ module.exports = {
             // console.log(budgetId)
             const budget = await Budget.findById(budgetId)
                 .populate('budgetItems.budgetItemId', 'name code')
-                .populate('createdBy','firstName lastName')
+                .populate('createdBy', 'firstName lastName')
                 .select('-description -activatedBy')
             // console.log(budget.budgetItems)
             const requests = await Request.find({ budgetId: budgetId })

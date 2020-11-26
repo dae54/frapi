@@ -15,7 +15,8 @@ router.get('/hist',budgetsController.viewBudgetRequestsHist)
 
 router.get('/report/:budgetId',budgetsController.generateReport)
 
-router.get('/:status',budgetsController.viewBudgetByStatus)
+router.get('/:budgetId',budgetsController.viewBudgetById)
+router.get('/status/:status',budgetsController.viewBudgetByStatus)
 router.patch('/edit/:target',budgetsController.editBudget)
 router.patch('/addItem',budgetsController.addItem)
 router.patch('/:budgetId/:status',budgetsController.changeStatus)
