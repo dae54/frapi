@@ -629,6 +629,31 @@ module.exports = {
             })
         }
     },
+    requestDashboardStatistics: async (req, res) => {
+        try {
+            console.log('requestDashboardStatistics')
+            // console.log(req.body)
+
+            const userCount = await User.countDocuments()
+            const requestCount = await Request.countDocuments()
+
+            const pendingAmount = (await Request.find({ status: 0 }).select('amount -_id')).reduce((a, b) => Number(a) + Number(b.amount), 0)
+
+            const disbursedAmount = (await Request.find({ status: 4 }).select('amount -_id')).reduce((a, b) => Number(a) + Number(b.amount), 0)
+
+            return res.status(200).json({
+                message: 'done',
+                data: { userCount, requestCount, pendingAmount: pendingAmount.toLocaleString(), disbursedAmount:disbursedAmount.toLocaleString() }
+            })
+
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                userMessage: 'Whoops! Something went wrong here.',
+                developerMessage: e.message
+            })
+        }
+    },
     requestStatusAmount: async (req, res) => {
         var pendingSum = 0, holdSum = 0, activeSum = 0, aprovedSum = 0, disbursedSum = 0, cancelledSum = 0
         const requestsPending = await Request.find({ status: 0 }).select('amount')

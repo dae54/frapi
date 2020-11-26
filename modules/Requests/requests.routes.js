@@ -58,6 +58,7 @@ router.get('/budget/:id', requestController.viewRequestByBudgetId)
 router.delete('/:id', requestController.deleteRequest)
 
 router.get('/stats', requestController.requestStatistics)
+router.get('/dashboardStats', requestController.requestDashboardStatistics)
 
 
 router.get('/requestStatusAmount', requestController.requestStatusAmount)
