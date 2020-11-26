@@ -127,7 +127,19 @@ module.exports = {
     deleteBudgetItem: async (req, res) => {
         try {
             console.log('delete budget item')
-            const deletedItem = await BudgetItem.findOneAndDelete({ _id: req.params.budgetItemId })
+            // check if the budget item is used by any budget
+            const budgetUsingBudgetItem = await Budget.find({ 'budgetItems.budgetItemId': req.params.budgetItemId }, 'name')
+            if (budgetUsingBudgetItem.length > 0) {
+                return res.status(200).json({
+                    message: 'Budget Item Cant be deleted; Because it is currently referenced in the following budgets',
+                    status: false,
+                    data: budgetUsingBudgetItem
+                })
+            }
+
+            // const count = await Budget.countDocuments({'budgetItems.budgetItemId': req.params.budgetItemId})
+
+            // const deletedItem = await BudgetItem.findOneAndDelete({ _id: req.params.budgetItemId })
 
             //     , function (err) {
             //     if (err) return res.status(400).json({
@@ -135,7 +147,13 @@ module.exports = {
             //         developerMessage: e.message
             //     })
             // });
-            console.log(deletedItem)
+            // console.log(budgetUsingBudgetItem)
+
+            // res.status(400).json({
+            //     message: 'testing',
+            //     userMessage: ''
+            // })
+
             res.status(200).json({
                 message: 'deleted',
                 status: true,
