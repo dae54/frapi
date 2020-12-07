@@ -31,9 +31,9 @@ module.exports = {
                 })
             })
     },
-    storeNotification: async ({ createdBy, recepients, subject, requestId }) => {
+    storeNotification: async ({ createdBy, recepients, subject, onModel, dataRef }) => {
         var notification = new Notifications({
-            createdBy, subject, requestId
+            createdBy, subject, onModel, dataRef
         })
         notification.recepient = recepients
         const status = notification.save()
@@ -135,10 +135,16 @@ module.exports = {
     },
 }
 const getNotificationAndEmit = async (socket, userId) => {
-    const notifications = await Notifications.find({ 'recepient.recepientID': userId, 'recepient.status': 0 })
-        .select('createdBy subject requestId createdAt')
+    // const notifications = await Notifications.find({ 'recepient.recepientID': userId, 'recepient.status': 0 })
+    const notifications = await Notifications.find({ 'recepient.recepientID': userId, 'recepient.readStatus': 0 })
+        // .select('createdBy subject requestId createdAt')
         .sort('-createdAt')
         .populate('createdBy', 'firstName lastName')
+        .populate('dataRef')
+    console.log('**************************')
+    console.log(notifications)
+    console.log('**************************')
+
     socket.emit("notifications", notifications)
 }
 

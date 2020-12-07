@@ -10,10 +10,22 @@ let recepient = mongoose.Schema({
         required: true,
         ref: 'users'
     },
-    status: {
+    // status: {
+    //     type: Number,
+    //     enum: [0, 1],
+    //     default: 0
+    //     //DEPRECATED
+    // },
+    readStatus: {
         type: Number,
         enum: [0, 1],
         default: 0
+        //0 UNREAD
+        //1 READ
+    },
+    readAt: {
+        type: Date,
+        default: null
     }
 })
 
@@ -25,19 +37,34 @@ let notificationSchema = mongoose.Schema({
     },
     recepient: [recepient],
 
-    readAt: {
-        type: Schema.Types.Date,
-        default: null
-    },
+    // readAt: {
+    //     type: Schema.Types.Date,
+    //     default: null
+    //     //DEPRECATED
+    // },
     subject: {
         type: String,
         required: true
     },
-    requestId: {
+    onModel: {
+        type: String,
+        required: true,
+        enum: ['users', 'roles', 'requests', 'budgets']
+    },
+    dataRef: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: 'requests'
+        refPath: 'onModel'
     },
+    message: {
+        type: String,
+        // required: true,
+    },
+    // requestId: {
+    //     type: Schema.Types.ObjectId,
+    //     required: true,
+    //     ref: 'requests'
+    // },
     // status: {
     //     type: Number,
     //     enum: [0, 1],
@@ -67,11 +94,10 @@ let notificationSchema = mongoose.Schema({
      * 0 notRead
      * 1 read
      */
-},
-    { timestamps: true }
-).pre('save', () => {
-    console.log('pre save')
-})
+}, { timestamps: true })
+    .pre('save', () => {
+        console.log('pre save')
+    })
     .post('save', () => {
         eventEmitter.emit('save')
         console.log('post save')
