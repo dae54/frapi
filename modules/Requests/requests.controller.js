@@ -24,7 +24,7 @@ module.exports = {
             var recepients = fundAprovers.map(fundAprover => {
                 return { recepientID: fundAprover._id }
             })
-            await Notifications.storeNotification({ createdBy: userId, recepients, subject: 'New Request', requestId: newRequest._id })
+            await Notifications.storeNotification({ createdBy: userId, recepients, subject: 'New Request', onModel: 'requests', dataRef: newRequest._id })
 
             // if (fundAprovers.length != 0) {
             //     fundAprovers.forEach(async fundAprover => {
@@ -643,7 +643,7 @@ module.exports = {
 
             return res.status(200).json({
                 message: 'done',
-                data: { userCount, requestCount, pendingAmount: pendingAmount.toLocaleString(), disbursedAmount:disbursedAmount.toLocaleString() }
+                data: { userCount, requestCount, pendingAmount: pendingAmount.toLocaleString(), disbursedAmount: disbursedAmount.toLocaleString() }
             })
 
         } catch (e) {
