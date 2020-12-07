@@ -24,7 +24,7 @@ async function fetchPendingRequests() {
     pendingRequests.forEach(item => {
         sum = sum + item.amount
     })
-    const final = { pendingRequestsCount: pendingRequests.length, pendingAmount: sum }
+    const final = { pendingRequestsCount: pendingRequests.length.toLocaleString(), pendingAmount: sum.toLocaleString() }
     // const pendingRequests = await Request.aggregate([
     //     { $match: { status: 4 } },
     //     { $group: { _id: '$status', totalDisbursedAmount: { $sum: '$amount' } } },
@@ -38,7 +38,7 @@ async function fetchRequestsOnHold() {
     requestsOnHold.forEach(item => {
         sum = sum + item.amount
     })
-    const final = { requestsOnHold: requestsOnHold.length, onHoldAmount: sum }
+    const final = { requestsOnHold: requestsOnHold.length.toLocaleString(), onHoldAmount: sum.toLocaleString() }
     return final
 }
 
@@ -53,5 +53,5 @@ async function fetchMostRequestedBudgetItem() {
     if (mostRequestedBudgetItem.length === 0) return { count: '', mostRequestedBudgetItem: 'No data' }
     const budgetItem = await BudgetItems.findById(mostRequestedBudgetItem[0]._id).select('name')
     // const final = { mostRequestedBudgetItem: budgetItem.name, count: mostRequestedBudgetItem[0].count }
-    return { mostRequestedBudgetItem: budgetItem.name, count: mostRequestedBudgetItem[0].count }
+    return { mostRequestedBudgetItem: budgetItem.name, count: mostRequestedBudgetItem[0].count.toLocaleString() }
 }
