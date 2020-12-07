@@ -137,22 +137,7 @@ module.exports = {
                 })
             }
 
-            // const count = await Budget.countDocuments({'budgetItems.budgetItemId': req.params.budgetItemId})
-
-            // const deletedItem = await BudgetItem.findOneAndDelete({ _id: req.params.budgetItemId })
-
-            //     , function (err) {
-            //     if (err) return res.status(400).json({
-            //         userMessage: 'Failed to delete Entry',
-            //         developerMessage: e.message
-            //     })
-            // });
-            // console.log(budgetUsingBudgetItem)
-
-            // res.status(400).json({
-            //     message: 'testing',
-            //     userMessage: ''
-            // })
+            const deletedItem = await BudgetItem.findOneAndDelete({ _id: req.params.budgetItemId })
 
             res.status(200).json({
                 message: 'deleted',
