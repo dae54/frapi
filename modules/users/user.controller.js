@@ -10,7 +10,6 @@ module.exports = {
     login: async (req, res) => {
         try {
             let user = await User.findOne({ email: req.body.email }, '+password')
-                // .populate('role')
                 .populate({
                     path: 'role',
                     populate: [
@@ -34,10 +33,17 @@ module.exports = {
                     })
                 }
                 else {
+                    // PREPARE USER AUTH TOKEN
                     const displayName = user.firstName + ' ' + user.lastName
                     let token = jwt.sign({ id: user._id, email: user.email, displayName: displayName, roleId: user.role._id }, process.env.JWT_SECRET, { expiresIn: 86400 });
+
+                    // UPDATE USER AUTHTOKEN
+                    await User.updateOne({ email: req.body.email }, { authToken: token }, { useFindAndModify: false })
+
+                    // REMOVE PASSWORD FROM USER OBJECT, (dont return password to client)
                     let rawResponse = user.toObject()
                     delete rawResponse.password
+
                     return res.status(200).json({
                         message: "Logged in successfully",
                         data: {
@@ -49,6 +55,20 @@ module.exports = {
             }
         } catch (e) {
             console.log(e)
+            return res.status(500).json({
+                userMessage: 'Whoops! Something went wrong.',
+                developerMessage: e.message
+            })
+        }
+    },
+    logout: async (req, res) => {
+        try {
+            let revokedAuthUser = await User.findByIdAndUpdate(req.body.userId, { $set: { authToken: '' } }, { new: true, useFindAndModify: false })
+            console.log(revokedAuthUser)
+            return res.status(200).json({
+                message: "Logout successfully",
+            })
+        } catch (e) {
             return res.status(500).json({
                 userMessage: 'Whoops! Something went wrong.',
                 developerMessage: e.message
@@ -100,11 +120,18 @@ module.exports = {
         try {
             console.log('sendInvitationEmail')
             const { firstName, lastName, email } = req.body
-            console.log(req.body)
+            // console.log(req.body)
             const response = await sendEmail(firstName, lastName, email)
+            // if (response.status) {
+            const result = await User.findByIdAndUpdate(req.body.userId, { $set: { invited: true } }, { new: true, useFindAndModify: false })
+            // const result = await User.findOne({_id:req.body.userId})
+            console.log('***************************')
+            console.log(result)
+            console.log('****************************')
+            // }
             return res.status(200).json({
                 message: 'Message sent',
-                data: response,
+                data: { response, invited: result.invited }
             })
         } catch (e) {
             console.log(e)
