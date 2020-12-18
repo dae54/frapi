@@ -5,21 +5,25 @@ module.exports = async function sendEmail(firstName, lastName, email) {
         const name = firstName.toUpperCase() + ' ' + lastName.toUpperCase()
         const password = lastName.toUpperCase()
         let transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: process.env.SMTP_HOSTNAME,
+            port: process.env.SMTP_PORT,
+            secure: true,
             auth: {
-                user: process.env.CONTROL_EMAIL,//SENDER EMAIL
-                pass: process.env.EMAIL_PASSWORD//SENDER PASSWORD
+                user: process.env.SMTP_USERNAME,
+                pass: process.env.SMTP_PASSWORD
             }
         });
         console.log(transporter)
 
         const response = await transporter.sendMail({
-            from: '"Fund Request (ipfsoftwares)👻" <danielernest1.05@gmail.com>', // sender address
+            from: 'amethysternest@gmail.com', // sender address
             to: email, //receivers
             subject: 'Test Invitation ✔', // Subject
             html: emailBody(name, email, password) // html body
         });
-        return { status: true, message: 'Email sent. ' }
+        console.log(response)
+
+        return { status: true, message: 'Email sent successfully. ' }
     } catch (error) {
         return { status: false, message: error.message }
     }
