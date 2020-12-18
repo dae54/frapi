@@ -7,9 +7,12 @@ const NotificationHandler = require('./modules/Notifications/notification.contro
 // const webpush = require('web-push')
 
 app.use(bodyParser.urlencoded({ extended: false }))
-
 app.use(bodyParser.json())
-app.use(cors())
+app.use(cors({
+    origin: ["http://localhost:3000",],
+    credentials: true,
+    exposedHeaders:true,
+}))
 const server = http.createServer(app)
 
 require('dotenv').config()
