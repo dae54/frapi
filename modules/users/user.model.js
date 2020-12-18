@@ -82,8 +82,12 @@ let userSchema = mongoose.Schema({
         required: true
         //0 NOT APROVED
         //1 ACTIVE
-    },verifiedAt:{
-        type:Date
+    }, verifiedAt: {
+        type: Date
+    }, authToken: {
+        type: String,
+        select: false,
+        default: null
     }
 },
     { timestamps: true }
