@@ -37,12 +37,27 @@ module.exports = {
                     const displayName = user.firstName + ' ' + user.lastName
                     let token = jwt.sign({ id: user._id, email: user.email, displayName: displayName, roleId: user.role._id }, process.env.JWT_SECRET, { expiresIn: 86400 });
 
-                    // UPDATE USER AUTHTOKEN
-                    await User.updateOne({ email: req.body.email }, { authToken: token }, { useFindAndModify: false })
 
                     // REMOVE PASSWORD FROM USER OBJECT, (dont return password to client)
                     let rawResponse = user.toObject()
                     delete rawResponse.password
+
+
+                    if (user.firstTimeLoginStatus === 0) {
+                        // console.log('hi')
+                        let tempToken = jwt.sign({ id: user._id, email: user.email, displayName: displayName }, process.env.JWT_SECRET, { expiresIn: 20 * 60 });
+
+                        return res.status(200).json({
+                            data: { tempToken: tempToken },
+                            target: 'firstTimeLoginStatus',
+                            message: 'Welcome to Fund Request System. Please change the default password',
+                            developerMessage: 'firstTimeLoginStatus'
+                        })
+                    }
+                    // UPDATE USER AUTHTOKEN
+                    await User.updateOne({ email: req.body.email }, { authToken: token }, { useFindAndModify: false })
+
+
 
                     return res.status(200).json({
                         message: "Logged in successfully",
@@ -184,6 +199,38 @@ module.exports = {
             res.status(201).json({
                 message: 'you have successfully changed the password, Login to proceed',
                 data: { status: true }
+            })
+        } catch (e) {
+            return res.status(500).json({
+                userMessage: 'Whoops! Something went wrong.',
+                developerMessage: e.message
+            })
+        }
+    },
+    /**
+     * Function to reset user's password from http client given the token
+     * @require token as param from req.body
+     */
+    resetPassword: async (req, res) => {
+        try {
+            const jwt = require('jsonwebtoken')
+
+            console.log('reset password')
+            const { password, token } = req.body
+            // console.log(req.body)
+            jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {
+                if (err) {
+                    console.log(err)
+                    throw err
+                }
+                console.log(decoded)
+
+                let encryPassword = bcrypt.hashSync(password, 8);
+                await User.updateOne({ _id: decoded.id }, { password: encryPassword, firstTimeLoginStatus: 1, forgotPasswordID: '' });
+                res.status(201).json({
+                    message: 'you have successfully changed the password, Login to proceed',
+                    data: { status: true }
+                })
             })
         } catch (e) {
             return res.status(500).json({
@@ -353,5 +400,10 @@ module.exports = {
                 developerMessage: e.message
             })
         }
+    }, firstTimeLogin: async (req, res) => {
+        console.log('first time login')
+        console.log(req.body)
+        let user = await User.findById(req.body.userId)
+        console.log(user)
     }
 }
