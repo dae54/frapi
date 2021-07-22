@@ -33,4 +33,4 @@ Imprest System (Fund Request App) is an internal iPF App which is designed to en
   npm start
   ```
 
-  To install dependencies
+  To start development server
